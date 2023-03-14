@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 anyhow = "1"
 regex = "1"
+flate2 = { version = "1.0.25", features = ["zlib-ng"], default-features = false }

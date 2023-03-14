@@ -1,6 +1,7 @@
 use crate::idx::IdxItem;
 use anyhow::Result;
-use std::{fs, path::Path};
+use std::{fs, path::Path, io::Read};
+use flate2::read::GzDecoder;
 
 pub struct Dict {
     content: String,
@@ -8,7 +9,10 @@ pub struct Dict {
 
 impl Dict {
     pub fn read_from_file<P: AsRef<Path>>(filepath: P) -> Result<Self> {
-        let content = fs::read_to_string(filepath)?;
+        let buf = fs::read(filepath)?;
+        let mut d = GzDecoder::new(buf.as_slice());
+        let mut content = String::new();
+        d.read_to_string(&mut content)?;
         Ok(Self { content })
     }
 

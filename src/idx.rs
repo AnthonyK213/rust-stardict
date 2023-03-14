@@ -67,8 +67,8 @@ impl Idx {
 
     pub fn index(&self, word: &String) -> Option<&IdxItem> {
         // match self.items.binary_search_by(|prob| prob.word.cmp(word)) {
-        // Ok(index) => &self.items[index],
-        // Err(index) => &self.items[index],
+        // Ok(index) => Some(&self.items[index]),
+        // Err(index) => Some(&self.items[index]),
         // }
         if let Some(index) = self.items.iter().position(|item| item.word == *word) {
             Some(&self.items[index])
