@@ -1,10 +1,10 @@
 use crate::util::read_lines;
-use anyhow::{Result, anyhow};
+use anyhow::{anyhow, Result};
 use regex::Regex;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 #[derive(Debug, PartialEq, Eq)]
-struct Ifo {
+pub struct Ifo {
     version: String,
     wordcount: u32,
     idxfilesize: u32,
