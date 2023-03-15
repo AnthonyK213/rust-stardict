@@ -71,6 +71,11 @@ impl Idx {
         let mut result = Vec::<&IdxItem>::new();
         let matcher: SkimMatcherV2 = SkimMatcherV2::default();
         let space = word.contains(" ");
+        let pass: i64 = (0.92
+            * (matcher
+                .fuzzy_match(&word.to_lowercase(), &word.to_lowercase())
+                .unwrap() as f32))
+            .floor() as i64;
         for item in &self.items {
             if item.word == *word {
                 return vec![item];
@@ -81,7 +86,7 @@ impl Idx {
                 (a, b) = (b, a);
             }
             if let Some(score) = matcher.fuzzy_match(a, b) {
-                if (space || !item.word.contains(" ")) && score >= 100 {
+                if (space || !item.word.contains(" ")) && score >= pass {
                     result.push(item)
                 }
             }
