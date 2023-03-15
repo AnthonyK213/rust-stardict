@@ -71,17 +71,18 @@ impl Idx {
         let mut result = Vec::<&IdxItem>::new();
         let matcher: SkimMatcherV2 = SkimMatcherV2::default();
         let space = word.contains(" ");
-        let pass: i64 = (0.92
+        let lower = word.to_lowercase();
+        let pass: i64 = (0.62
             * (matcher
-                .fuzzy_match(&word.to_lowercase(), &word.to_lowercase())
+                .fuzzy_match(&lower, &lower)
                 .unwrap() as f32))
             .floor() as i64;
         for item in &self.items {
-            if item.word == *word {
+            let mut a = &item.word.to_lowercase();
+            if *a == lower {
                 return vec![item];
             }
-            let mut a = &item.word.to_lowercase();
-            let mut b = &word.to_lowercase();
+            let mut b = &lower;
             if a.len() < b.len() {
                 (a, b) = (b, a);
             }
