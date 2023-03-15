@@ -69,14 +69,14 @@ impl Idx {
 
     pub fn index(&self, word: &String) -> Vec<&IdxItem> {
         let mut result = Vec::<&IdxItem>::new();
-        let matcher = SkimMatcherV2::default();
+        let matcher: SkimMatcherV2 = SkimMatcherV2::default();
         let space = word.contains(" ");
         for item in &self.items {
             if item.word == *word {
                 return vec![item];
             }
-            let mut a = &item.word;
-            let mut b = word;
+            let mut a = &item.word.to_lowercase();
+            let mut b = &word.to_lowercase();
             if a.len() < b.len() {
                 (a, b) = (b, a);
             }

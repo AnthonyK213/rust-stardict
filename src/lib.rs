@@ -31,7 +31,7 @@ mod tests {
     #[test]
     fn look_up_word() {
         assert_eq!(
-            stardict("test".into(), "research".into()),
+            stardict("test".into(), "a".into()),
             "*[sә:tʃ]
 n. 搜寻, 查究
 vt. 搜寻, 搜查, 探求, 调查, 搜索
