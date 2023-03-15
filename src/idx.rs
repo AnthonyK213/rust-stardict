@@ -1,5 +1,7 @@
 use crate::util::get_u32;
 use anyhow::Result;
+use fuzzy_matcher::skim::SkimMatcherV2;
+use fuzzy_matcher::FuzzyMatcher;
 use std::{fs, path::Path};
 
 enum Token {
@@ -65,16 +67,26 @@ impl Idx {
         Ok(())
     }
 
-    pub fn index(&self, word: &String) -> Option<&IdxItem> {
-        // match self.items.binary_search_by(|prob| prob.word.cmp(word)) {
-        // Ok(index) => Some(&self.items[index]),
-        // Err(index) => Some(&self.items[index]),
-        // }
-        if let Some(index) = self.items.iter().position(|item| item.word == *word) {
-            Some(&self.items[index])
-        } else {
-            None
+    pub fn index(&self, word: &String) -> Vec<&IdxItem> {
+        let mut result = Vec::<&IdxItem>::new();
+        let matcher = SkimMatcherV2::default();
+        let space = word.contains(" ");
+        for item in &self.items {
+            if item.word == *word {
+                return vec![item];
+            }
+            let mut a = &item.word;
+            let mut b = word;
+            if a.len() < b.len() {
+                (a, b) = (b, a);
+            }
+            if let Some(score) = matcher.fuzzy_match(a, b) {
+                if (space || !item.word.contains(" ")) && score >= 100 {
+                    result.push(item)
+                }
+            }
         }
+        result
     }
 }
 

@@ -1,10 +1,19 @@
 use crate::{dict, idx, ifo};
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Ok, Result};
+use serde::{Deserialize, Serialize};
+use serde_json;
 use std::{fs, path::Path};
 
 use dict::Dict;
 use idx::Idx;
 use ifo::Ifo;
+
+#[derive(Serialize, Deserialize)]
+struct Payload {
+    definition: String,
+    word: String,
+    dict: String,
+}
 
 pub struct Dictionary {
     idx: Idx,
@@ -49,11 +58,19 @@ impl Dictionary {
         }
     }
 
-    pub fn search(&self, word: String) -> Result<String> {
-        if let Some(item) = self.idx.index(&word) {
-            Ok(self.dict.get(item))
-        } else {
-            Err(anyhow!("Nothing found"))
-        }
+    pub fn search(&self, word: &String) -> Vec<String> {
+        self.idx
+            .index(word)
+            .iter()
+            .map(|item| {
+                let def = self.dict.get(item);
+                let payload = Payload {
+                    definition: def,
+                    word: item.word.to_string(),
+                    dict: self.ifo.bookname.to_string(),
+                };
+                serde_json::to_string(&payload).unwrap()
+            })
+            .collect()
     }
 }

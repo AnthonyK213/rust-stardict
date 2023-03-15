@@ -8,7 +8,7 @@ pub struct Ifo {
     version: String,
     wordcount: u32,
     idxfilesize: u32,
-    bookname: String,
+    pub bookname: String,
     author: String,
     description: String,
     date: String,
