@@ -55,12 +55,15 @@ impl Ifo {
 
 #[cfg(test)]
 mod tests {
-    use crate::ifo::Ifo;
+    use crate::{ifo::Ifo, util::get_stardict_dir};
 
     #[test]
     fn read_ifo() {
+        let mut ifo_path = get_stardict_dir().unwrap();
+        ifo_path.push("stardict-langdao-ec-gb-2.4.2");
+        ifo_path.push("langdao-ec-gb.ifo");
         let ifo =
-            Ifo::read_from_file("test/stardict-langdao-ec-gb-2.4.2/langdao-ec-gb.ifo").unwrap();
+            Ifo::read_from_file(ifo_path).unwrap();
         assert_eq!(
             ifo,
             Ifo {

@@ -98,12 +98,15 @@ impl Idx {
 
 #[cfg(test)]
 mod tests {
-    use crate::idx::*;
+    use crate::{idx::*, util::get_stardict_dir};
 
     #[test]
     fn read_idx() {
         let mut idx = Idx::new();
-        idx.read_from_file("test/stardict-langdao-ec-gb-2.4.2/langdao-ec-gb.idx")
+        let mut idx_path = get_stardict_dir().unwrap();
+        idx_path.push("stardict-langdao-ec-gb-2.4.2");
+        idx_path.push("langdao-ec-gb.idx");
+        idx.read_from_file(idx_path)
             .unwrap();
         assert_eq!(
             idx.items[0],

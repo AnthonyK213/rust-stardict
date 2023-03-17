@@ -5,33 +5,50 @@ mod ifo;
 mod util;
 
 use dictionary::Dictionary;
-use std::fs;
+use rayon::prelude::*;
+use std::{fs, path::PathBuf};
 
 pub fn stardict(dict_dir: String, word: String) -> String {
-    let mut results = Vec::<String>::new();
+    let mut dict_dirs = Vec::<PathBuf>::new();
     if let Ok(read_dir) = fs::read_dir(dict_dir) {
         for entry in read_dir {
             if let Ok(ent) = entry {
                 let path = ent.path();
                 if path.is_dir() {
-                    if let Ok(dict) = Dictionary::from_dir(path) {
-                        results.append(&mut dict.search(&word));
-                    }
+                    dict_dirs.push(path);
                 }
             }
         }
     }
-    format!("[{}]", results.join(","))
+
+    format!(
+        "[{}]",
+        dict_dirs
+            .par_iter()
+            .flat_map_iter(|path| {
+                if let Ok(dict) = Dictionary::from_dir(path) {
+                    dict.search(&word)
+                } else {
+                    Vec::new()
+                }
+            })
+            .collect::<Vec<String>>()
+            .join(",")
+    )
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use util::*;
 
     #[test]
     fn look_up_word() {
         assert_eq!(
-            stardict("test".into(), "searched".into()),
+            stardict(
+                get_stardict_dir().unwrap().to_str().unwrap().to_string(),
+                "搜索".into()
+            ),
             "*[sә:tʃ]
 n. 搜寻, 查究
 vt. 搜寻, 搜查, 探求, 调查, 搜索
