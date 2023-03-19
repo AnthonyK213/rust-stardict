@@ -15,7 +15,7 @@ struct Payload {
     dict: String,
 }
 
-pub struct Dictionary {
+pub(crate) struct Dictionary {
     idx: Idx,
     dict: Dict,
     ifo: Ifo,

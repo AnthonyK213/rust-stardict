@@ -11,7 +11,7 @@ enum Token {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub struct IdxItem {
+pub(crate) struct IdxItem {
     pub word: String,
     pub offset: u32,
     pub length: u32,
@@ -67,7 +67,7 @@ impl Idx {
         Ok(())
     }
 
-    pub fn index(&self, word: &String) -> Vec<&IdxItem> {
+    pub(crate) fn index(&self, word: &String) -> Vec<&IdxItem> {
         let mut result = Vec::<&IdxItem>::new();
         let matcher: SkimMatcherV2 = SkimMatcherV2::default();
         let space = word.contains(" ");

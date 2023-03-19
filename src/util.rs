@@ -6,7 +6,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-pub fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
+pub(crate) fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
 where
     P: AsRef<Path>,
 {
@@ -14,7 +14,7 @@ where
     Ok(io::BufReader::new(file).lines())
 }
 
-pub fn get_u32(vec: &[u8]) -> Result<(u32, u32)> {
+pub(crate) fn get_u32(vec: &[u8]) -> Result<(u32, u32)> {
     if vec.len() == 8 {
         Ok((
             ((vec[0] as u32) << 24)
@@ -31,7 +31,7 @@ pub fn get_u32(vec: &[u8]) -> Result<(u32, u32)> {
     }
 }
 
-pub fn get_stardict_dir() -> Option<PathBuf> {
+pub(crate) fn get_stardict_dir() -> Option<PathBuf> {
     if let Some(base_dirs) = BaseDirs::new() {
         let mut home = base_dirs.home_dir().to_path_buf();
         home.push(".stardict");

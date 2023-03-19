@@ -3,7 +3,7 @@ use anyhow::Result;
 use std::{fs, path::Path, io::Read};
 use flate2::read::GzDecoder;
 
-pub struct Dict {
+pub(crate) struct Dict {
     content: String,
 }
 

@@ -4,7 +4,7 @@ use regex::Regex;
 use std::path::Path;
 
 #[derive(Debug, PartialEq, Eq)]
-pub struct Ifo {
+pub(crate) struct Ifo {
     version: String,
     wordcount: u32,
     idxfilesize: u32,
