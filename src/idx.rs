@@ -1,7 +1,6 @@
 use crate::util::get_u32;
 use anyhow::Result;
-use fuzzy_matcher::skim::SkimMatcherV2;
-use fuzzy_matcher::FuzzyMatcher;
+use edit_distance;
 use std::{fs, path::Path};
 
 enum Token {
@@ -69,27 +68,20 @@ impl Idx {
 
     pub(crate) fn index(&self, word: &String) -> Vec<&IdxItem> {
         let mut result = Vec::<&IdxItem>::new();
-        let matcher: SkimMatcherV2 = SkimMatcherV2::default();
-        let space = word.contains(" ");
         let lower = word.to_lowercase();
-        let pass: i64 = (0.62
-            * (matcher
-                .fuzzy_match(&lower, &lower)
-                .unwrap() as f32))
-            .floor() as i64;
+        let t_len = lower.chars().count() as isize;
+        let max_dist = 3.min(t_len);
         for item in &self.items {
-            let mut a = &item.word.to_lowercase();
+            let c_len = item.word.chars().count() as isize;
+            if (t_len - c_len).abs() >= 3 {
+                continue;
+            }
+            let a = &item.word.to_lowercase();
             if *a == lower {
                 return vec![item];
             }
-            let mut b = &lower;
-            if a.len() < b.len() {
-                (a, b) = (b, a);
-            }
-            if let Some(score) = matcher.fuzzy_match(a, b) {
-                if (space || !item.word.contains(" ")) && score >= pass {
-                    result.push(item)
-                }
+            if edit_distance::edit_distance(&lower, a) < max_dist.min(c_len) as usize {
+                result.push(item);
             }
         }
         result
@@ -106,8 +98,7 @@ mod tests {
         let mut idx_path = get_stardict_dir().unwrap();
         idx_path.push("stardict-langdao-ec-gb-2.4.2");
         idx_path.push("langdao-ec-gb.idx");
-        idx.read_from_file(idx_path)
-            .unwrap();
+        idx.read_from_file(idx_path).unwrap();
         assert_eq!(
             idx.items[0],
             IdxItem {
