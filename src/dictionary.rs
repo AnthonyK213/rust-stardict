@@ -9,10 +9,10 @@ use idx::Idx;
 use ifo::Ifo;
 
 #[derive(Serialize, Deserialize)]
-struct Payload {
-    definition: String,
-    word: String,
-    dict: String,
+struct Payload<'a> {
+    definition: &'a str,
+    word: &'a str,
+    dict: &'a str,
 }
 
 pub(crate) struct Dictionary {
@@ -58,16 +58,16 @@ impl Dictionary {
         }
     }
 
-    pub fn search(&self, word: &String) -> Vec<String> {
+    pub fn search(&self, word: &str) -> Vec<String> {
         self.idx
             .index(word)
             .iter()
             .map(|item| {
                 let def = self.dict.get(item);
                 let payload = Payload {
-                    definition: def,
-                    word: item.word.to_string(),
-                    dict: self.ifo.bookname.to_string(),
+                    definition: &def,
+                    word: &item.word,
+                    dict: &self.ifo.bookname,
                 };
                 serde_json::to_string(&payload).unwrap()
             })

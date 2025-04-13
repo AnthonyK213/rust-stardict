@@ -66,7 +66,7 @@ impl Idx {
         Ok(())
     }
 
-    pub(crate) fn index(&self, word: &String) -> Vec<&IdxItem> {
+    pub(crate) fn index(&self, word: &str) -> Vec<&IdxItem> {
         let mut result = Vec::<&IdxItem>::new();
         let lower = word.to_lowercase();
         let t_len = lower.chars().count() as isize;

@@ -1,7 +1,7 @@
 use crate::idx::IdxItem;
 use anyhow::Result;
-use std::{fs, path::Path, io::Read};
 use flate2::read::GzDecoder;
+use std::{fs, io::Read, path::Path};
 
 pub(crate) struct DictContent {
     content: String,

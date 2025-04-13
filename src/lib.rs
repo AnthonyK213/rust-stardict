@@ -13,7 +13,7 @@ pub struct Dictionaries {
 }
 
 impl Dictionaries {
-    pub fn new(dict_dir: String) -> Self {
+    pub fn new(dict_dir: &str) -> Self {
         let mut dicts = Vec::new();
         if let Ok(read_dir) = fs::read_dir(dict_dir) {
             for entry in read_dir {
@@ -32,12 +32,12 @@ impl Dictionaries {
         Self { dicts }
     }
 
-    pub fn search_word_into_json(&self, word: String) -> String {
+    pub fn search_word_into_json(&self, word: &str) -> String {
         format!(
             "[{}]",
             self.dicts
                 .par_iter()
-                .flat_map_iter(|dict| { dict.search(&word) })
+                .flat_map_iter(|dict| { dict.search(word) })
                 .collect::<Vec<String>>()
                 .join(",")
         )
@@ -51,7 +51,7 @@ mod tests {
 
     #[test]
     fn look_up_word() {
-        let dicts = Dictionaries::new(get_stardict_dir().unwrap().to_str().unwrap().to_string());
-        println!("{}", dicts.search_word_into_json("searches".into()));
+        let dicts = Dictionaries::new(get_stardict_dir().unwrap().to_str().unwrap());
+        println!("{}", dicts.search_word_into_json("searches"));
     }
 }

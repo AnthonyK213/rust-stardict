@@ -62,8 +62,7 @@ mod tests {
         let mut ifo_path = get_stardict_dir().unwrap();
         ifo_path.push("stardict-langdao-ec-gb-2.4.2");
         ifo_path.push("langdao-ec-gb.ifo");
-        let ifo =
-            Ifo::read_from_file(ifo_path).unwrap();
+        let ifo = Ifo::read_from_file(ifo_path).unwrap();
         assert_eq!(
             ifo,
             Ifo {
