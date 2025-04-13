@@ -13,7 +13,7 @@ pub struct Dictionaries {
 }
 
 impl Dictionaries {
-    fn new(dict_dir: String) -> Self {
+    pub fn new(dict_dir: String) -> Self {
         let mut dicts = Vec::new();
         if let Ok(read_dir) = fs::read_dir(dict_dir) {
             for entry in read_dir {
@@ -32,7 +32,7 @@ impl Dictionaries {
         Self { dicts }
     }
 
-    fn search_word_into_json(&self, word: String) -> String {
+    pub fn search_word_into_json(&self, word: String) -> String {
         format!(
             "[{}]",
             self.dicts
