@@ -16,7 +16,7 @@ pub(crate) struct IdxItem {
     pub length: u32,
 }
 
-pub struct Idx {
+pub(crate) struct Idx {
     items: Vec<IdxItem>,
 }
 

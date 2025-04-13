@@ -3,11 +3,11 @@ use anyhow::Result;
 use std::{fs, path::Path, io::Read};
 use flate2::read::GzDecoder;
 
-pub(crate) struct Dict {
+pub(crate) struct DictContent {
     content: String,
 }
 
-impl Dict {
+impl DictContent {
     pub fn read_from_file<P: AsRef<Path>>(filepath: P) -> Result<Self> {
         let buf = fs::read(filepath)?;
         let mut d = GzDecoder::new(buf.as_slice());

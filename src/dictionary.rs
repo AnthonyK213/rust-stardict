@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use serde_json;
 use std::{fs, path::Path};
 
-use dict::Dict;
+use dict::DictContent;
 use idx::Idx;
 use ifo::Ifo;
 
@@ -17,14 +17,14 @@ struct Payload {
 
 pub(crate) struct Dictionary {
     idx: Idx,
-    dict: Dict,
+    dict: DictContent,
     ifo: Ifo,
 }
 
 impl Dictionary {
     pub fn from_dir<P: AsRef<Path>>(dir: P) -> Result<Self> {
         let mut idx: Option<Idx> = None;
-        let mut dict: Option<Dict> = None;
+        let mut dict: Option<DictContent> = None;
         let mut ifo: Option<Ifo> = None;
         for entry in fs::read_dir(dir)? {
             let path = entry?.path();
@@ -32,7 +32,7 @@ impl Dictionary {
                 if let Some(ext) = path.extension() {
                     match ext.to_str() {
                         Some("dz") => {
-                            dict = Dict::read_from_file(path).ok();
+                            dict = DictContent::read_from_file(path).ok();
                         }
                         Some("idx") => {
                             let mut _idx = Idx::new();
@@ -54,7 +54,7 @@ impl Dictionary {
                 ifo: ifo.unwrap(),
             })
         } else {
-            Err(anyhow!("Failed to get the `Dictionary`"))
+            Err(anyhow!("Failed to get the Dictionary"))
         }
     }
 
