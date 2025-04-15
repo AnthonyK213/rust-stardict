@@ -20,41 +20,47 @@ impl DictIndex {
         let mut word_buffer = Vec::new();
 
         let mut content_iter = content.iter();
-        while let Some(byte) = content_iter.next() {
-            if *byte == 0 {
-                let mut offset_bytes: [u8; 4] = [0; 4];
-                let mut length_bytes: [u8; 4] = [0; 4];
-                let mut i = 0;
+        while let Some(&byte) = content_iter.next() {
+            if byte == 0 {
+                let offset_bytes = {
+                    let mut i = 0;
+                    let mut bytes: [u8; 4] = [0; 4];
 
-                for b in content_iter.by_ref().take(4) {
-                    offset_bytes[i] = *b;
-                    i += 1;
-                }
+                    for &b in content_iter.by_ref().take(4) {
+                        bytes[i] = b;
+                        i += 1;
+                    }
 
-                if i != 4 {
-                    return Err(anyhow!("Failed to read offset bytes"));
-                }
+                    if i != 4 {
+                        return Err(anyhow!("Failed to read offset bytes"));
+                    }
 
-                i = 0;
+                    bytes
+                };
 
-                for b in content_iter.by_ref().take(4) {
-                    length_bytes[i] = *b;
-                    i += 1;
-                }
+                let length_bytes = {
+                    let mut i = 0;
+                    let mut bytes: [u8; 4] = [0; 4];
 
-                if i != 4 {
-                    return Err(anyhow!("Failed to read length bytes"));
-                }
+                    for &b in content_iter.by_ref().take(4) {
+                        bytes[i] = b;
+                        i += 1;
+                    }
+
+                    if i != 4 {
+                        return Err(anyhow!("Failed to read length bytes"));
+                    }
+
+                    bytes
+                };
 
                 self.items.push(IndexItem {
-                    word: String::from_utf8(word_buffer.clone())?,
+                    word: String::from_utf8(std::mem::take(&mut word_buffer))?,
                     offset: u32::from_be_bytes(offset_bytes),
                     length: u32::from_be_bytes(length_bytes),
                 });
-
-                word_buffer.clear();
             } else {
-                word_buffer.push(*byte);
+                word_buffer.push(byte);
             }
         }
 
