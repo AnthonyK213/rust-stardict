@@ -1,5 +1,5 @@
+use super::sd_error::SdError;
 use super::util;
-use anyhow::Result;
 use regex::Regex;
 use std::path::Path;
 
@@ -31,26 +31,60 @@ impl Default for DictInfo {
 }
 
 impl DictInfo {
-    pub fn read_from_file<P: AsRef<Path>>(&mut self, filename: P) -> Result<()> {
+    pub fn read_from_file<P: AsRef<Path>>(&mut self, filename: P) -> Result<(), SdError> {
         let re = Regex::new(r"^(\w+)=(.+)$")?;
         let lines = util::read_lines(filename)?;
 
         for line in lines {
             if let Ok(l) = line {
                 if let Some(c) = re.captures(&l) {
-                    match &c[1] {
-                        "version" => self.version = c[2].parse()?,
-                        "wordcount" => self.wordcount = c[2].parse()?,
-                        "idxfilesize" => self.idxfilesize = c[2].parse()?,
-                        "bookname" => self.bookname = c[2].parse()?,
-                        "author" => self.author = c[2].parse()?,
-                        "description" => self.description = c[2].parse()?,
-                        "date" => self.date = c[2].parse()?,
-                        "sametypesequence" => self.sametypesequence = c[2].parse()?,
-                        _ => {}
-                    }
+                    self.set_field(&c[1], &c[2])?;
                 }
             }
+        }
+
+        Ok(())
+    }
+
+    fn set_field(&mut self, field: &str, value: &str) -> Result<(), SdError> {
+        match field {
+            "version" => {
+                self.version = value
+                    .parse()
+                    .map_err(|_| SdError::ParseInfoError("version"))?
+            }
+            "wordcount" => {
+                self.wordcount = value
+                    .parse()
+                    .map_err(|_| SdError::ParseInfoError("wordcount"))?
+            }
+            "idxfilesize" => {
+                self.idxfilesize = value
+                    .parse()
+                    .map_err(|_| SdError::ParseInfoError("idxfilesize"))?
+            }
+            "bookname" => {
+                self.bookname = value
+                    .parse()
+                    .map_err(|_| SdError::ParseInfoError("bookname"))?
+            }
+            "author" => {
+                self.author = value
+                    .parse()
+                    .map_err(|_| SdError::ParseInfoError("author"))?
+            }
+            "description" => {
+                self.description = value
+                    .parse()
+                    .map_err(|_| SdError::ParseInfoError("description"))?
+            }
+            "date" => self.date = value.parse().map_err(|_| SdError::ParseInfoError("date"))?,
+            "sametypesequence" => {
+                self.sametypesequence = value
+                    .parse()
+                    .map_err(|_| SdError::ParseInfoError("sametypesequence"))?
+            }
+            _ => {}
         }
 
         Ok(())
@@ -66,8 +100,10 @@ mod tests {
         let mut ifo_path = util::get_stardict_dir().unwrap();
         ifo_path.push("stardict-langdao-ec-gb-2.4.2");
         ifo_path.push("langdao-ec-gb.ifo");
+
         let mut ifo = DictInfo::default();
         ifo.read_from_file(ifo_path).unwrap();
+
         assert_eq!(
             ifo,
             DictInfo {

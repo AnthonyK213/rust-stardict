@@ -1,6 +1,7 @@
 use super::{consult_result::ConsultResult, dictionary::Dictionary};
 use rayon::prelude::*;
 
+#[derive(Debug)]
 pub struct Library {
     dicts: Vec<Dictionary>,
 }
@@ -8,6 +9,7 @@ pub struct Library {
 impl Library {
     pub fn new(dict_dir: &str) -> Self {
         let mut dicts = Vec::new();
+
         if let Ok(read_dir) = std::fs::read_dir(dict_dir) {
             for entry in read_dir {
                 if let Ok(ent) = entry {
@@ -25,6 +27,10 @@ impl Library {
         Self { dicts }
     }
 
+    pub fn dict_count(&self) -> usize {
+        self.dicts.len()
+    }
+
     pub fn consult(&self, word: &str) -> Vec<ConsultResult> {
         self.dicts
             .par_iter()
@@ -40,7 +46,13 @@ mod tests {
     #[test]
     fn look_up_the_word() {
         let dicts = Library::new(util::get_stardict_dir().unwrap().to_str().unwrap());
-        println!("{:?}", dicts.consult("searches"));
-        println!("{:?}", dicts.consult("搜索"));
+
+        let consult_english = dicts.consult("searches");
+        assert!(!consult_english.is_empty());
+        println!("{:?}", &consult_english);
+
+        let consult_chinese = dicts.consult("搜索");
+        assert!(!consult_chinese.is_empty());
+        println!("{:?}", &consult_chinese);
     }
 }
