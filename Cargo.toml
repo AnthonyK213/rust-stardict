@@ -1,0 +1,13 @@
+[package]
+name = "rust-stardict"
+version = "0.3.1"
+edition = "2021"
+
+[dependencies]
+thiserror = "2"
+directories = "6.0.0"
+edit-distance = "2.1.0"
+flate2 = { version = "1.0", features = ["zlib-ng"], default-features = false }
+rayon = "1.7.0"
+regex = "1"
+serde = { version = "1.0", features = ["derive"] }
