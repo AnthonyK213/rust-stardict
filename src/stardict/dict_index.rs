@@ -1,4 +1,4 @@
-use super::sd_error::SdError;
+use super::{consult_option::ConsultOption, sd_error::SdError};
 use edit_distance;
 use std::{
     fs::File,
@@ -46,27 +46,33 @@ impl DictIndex {
         Ok(())
     }
 
-    pub(crate) fn consult(&self, word: &str) -> Vec<&IndexItem> {
-        let mut result = Vec::<&IndexItem>::new();
-        let lower = word.to_lowercase();
-        let t_len = lower.chars().count() as isize;
-        let max_dist = 3.min(t_len);
-
-        for item in &self.items {
-            let c_len = item.word.chars().count() as isize;
-            if (t_len - c_len).abs() >= 3 {
-                continue;
-            }
-            let a = &item.word.to_lowercase();
-            if *a == lower {
-                return vec![item];
-            }
-            if edit_distance::edit_distance(&lower, a) < max_dist.min(c_len) as usize {
-                result.push(item);
-            }
+    pub(crate) fn consult_exact(&self, word: &str) -> Vec<&IndexItem> {
+        if let Ok(i) = self
+            .items
+            .binary_search_by(|item| item.word.as_str().cmp(word))
+        {
+            vec![&self.items[i]]
+        } else {
+            vec![]
         }
+    }
 
-        result
+    pub(crate) fn consult_fuzzy(&self, word: &str, option: &ConsultOption) -> Vec<&IndexItem> {
+        let lower = word.to_lowercase();
+        let max_dist = option.max_dist as usize;
+
+        self.items
+            .iter()
+            .filter_map(|item| {
+                let item_word = &item.word.to_lowercase();
+
+                if edit_distance::edit_distance(&lower, item_word) <= max_dist {
+                    Some(item)
+                } else {
+                    None
+                }
+            })
+            .collect()
     }
 }
 

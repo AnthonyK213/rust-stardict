@@ -1,9 +1,8 @@
 use super::{
-    consult_result::ConsultResult, dict_content::DictContent, dict_index::DictIndex,
-    dict_info::DictInfo,
+    consult_option::ConsultOption, consult_result::ConsultResult, dict_content::DictContent,
+    dict_index::DictIndex, dict_info::DictInfo, sd_error::SdError,
 };
 use std::path::Path;
-use super::sd_error::SdError;
 
 #[derive(Debug)]
 pub(crate) struct Dictionary {
@@ -48,9 +47,9 @@ impl Dictionary {
         })
     }
 
-    pub fn consult(&self, word: &str) -> Vec<ConsultResult> {
+    pub fn consult(&self, word: &str, option: &ConsultOption) -> Vec<ConsultResult> {
         self.index
-            .consult(word)
+            .consult_fuzzy(word, option)
             .iter()
             .map(|item| {
                 let def = self.content.get(item);
