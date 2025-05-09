@@ -1,16 +1,24 @@
+use super::sd_error::SdError;
 use directories::BaseDirs;
-use std::{
-    fs::File,
-    io::{self, BufRead},
-    path::{Path, PathBuf},
-};
+use std::io::{BufReader, Read};
+use std::path::PathBuf;
 
-pub(crate) fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
+pub(crate) fn read_u32<R>(reader: &mut BufReader<R>) -> Result<usize, SdError>
 where
-    P: AsRef<Path>,
+    R: Read,
 {
-    let file = File::open(filename)?;
-    Ok(io::BufReader::new(file).lines())
+    let mut bytes = [0; 4];
+    reader.read_exact(&mut bytes)?;
+    Ok(u32::from_be_bytes(bytes) as usize)
+}
+
+pub(crate) fn read_u64<R>(reader: &mut BufReader<R>) -> Result<usize, SdError>
+where
+    R: Read,
+{
+    let mut bytes = [0; 8];
+    reader.read_exact(&mut bytes)?;
+    Ok(u64::from_be_bytes(bytes) as usize)
 }
 
 #[allow(unused)]

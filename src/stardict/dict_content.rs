@@ -1,7 +1,9 @@
 use super::dict_index::IndexItem;
 use super::sd_error::SdError;
 use flate2::read::GzDecoder;
-use std::{fs::File, io::Read, path::Path};
+use std::fs::File;
+use std::io::Read;
+use std::path::Path;
 
 #[derive(Debug, Default)]
 pub(crate) struct DictContent {
@@ -17,6 +19,6 @@ impl DictContent {
     }
 
     pub fn get(&self, item: &IndexItem) -> &str {
-        &self.content[(item.offset as usize)..((item.offset + item.length) as usize)]
+        &self.content[item.offset..(item.offset + item.length)]
     }
 }
