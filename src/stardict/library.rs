@@ -1,4 +1,6 @@
-use super::{consult_option::ConsultOption, consult_result::ConsultResult, dictionary::Dictionary};
+use super::consult_option::ConsultOption;
+use super::consult_result::ConsultResult;
+use super::dictionary::Dictionary;
 use rayon::prelude::*;
 
 #[derive(Debug)]
@@ -32,10 +34,17 @@ impl Library {
     }
 
     pub fn consult(&self, word: &str, option: &ConsultOption) -> Vec<ConsultResult> {
-        self.dicts
-            .par_iter()
-            .flat_map_iter(|dict| dict.consult(word, &option))
-            .collect()
+        if option.parallel {
+            self.dicts
+                .par_iter()
+                .flat_map_iter(|dict| dict.consult(word, &option))
+                .collect()
+        } else {
+            self.dicts
+                .iter()
+                .flat_map(|dict| dict.consult(word, &option))
+                .collect()
+        }
     }
 }
 
@@ -44,19 +53,31 @@ mod tests {
     use crate::stardict::{consult_option::ConsultOption, library::Library, util};
 
     #[test]
-    fn look_up_the_word() {
+    fn look_up_exact() {
         let dicts = Library::new(util::get_stardict_dir().unwrap().to_str().unwrap());
-        let option = ConsultOption {
-            fuzzy: true,
-            max_dist: 3,
-        };
+        let mut option = ConsultOption::default();
 
-        let consult_english = dicts.consult("searches", &option);
-        assert!(!consult_english.is_empty());
-        println!("{:?}", &consult_english);
+        option.fuzzy = false;
 
-        let consult_chinese = dicts.consult("搜索", &option);
-        assert!(!consult_chinese.is_empty());
-        println!("{:?}", &consult_chinese);
+        let consult_en = dicts.consult("search", &option);
+        assert_eq!(1, consult_en.len());
+        assert_eq!("search", consult_en[0].word);
+
+        let consult_zh = dicts.consult("搜索", &option);
+        assert_eq!(1, consult_zh.len());
+        assert_eq!("搜索", consult_zh[0].word);
+    }
+
+    #[test]
+    fn look_up_fuzzy() {
+        let dicts = Library::new(util::get_stardict_dir().unwrap().to_str().unwrap());
+        let mut option = ConsultOption::default();
+
+        option.fuzzy = true;
+        option.max_dist = 3;
+
+        let consult_en = dicts.consult("zearch", &option);
+        assert_eq!(10, consult_en.len());
+        assert_eq!("search", consult_en[0].word);
     }
 }
